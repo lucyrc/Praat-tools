@@ -1,0 +1,57 @@
+#This script works with mannual selection of sound and textgrid files.
+#You can specify the vowel length for each individual selected sound.
+
+#Please firstly open the sound and textGrid file in the object window before running this script.
+
+soundNum = selected: "Sound"
+sound$ = selected$: "Sound"
+textgridNum = selected: "TextGrid"
+
+
+#Type in the disired vowel length here (in MS)
+desVlengthMS = 80
+
+#Paste your filepath below
+outputDirectory$ = "C:\Users\rqche\Dropbox\Dissertation\Experiment Design\Stimuli\Speaker M1\VOT_SR\Stimuli\manipulated"
+
+#Type in your desired file name below
+fileName$ = sound$ + "_short.wav"
+
+
+selectObject: textgridNum
+segTier = 1
+cStartTime = Get starting point: segTier, 2
+cEndTime = Get end point: segTier, 2
+vEndTime = Get end point: segTier, 3
+cLength = cEndTime - cStartTime
+vLength = vEndTime - cEndTime
+vLengthMS = vLength * 1000
+
+selectObject: soundNum
+Create DurationTier: "shorten", 0, cLength + vLength
+Add point: 0.000, 1/1
+Add point: cEndTime, 1/1
+
+Add point: cEndTime + 0.0001, desVlengthMS/vLengthMS
+Add point: vEndTime, desVlengthMS/vLengthMS
+
+selectObject: soundNum
+To Manipulation: 0.01, 75, 300
+manipName$ = "Manipulation " + sound$
+
+selectObject: manipName$
+plusObject: "DurationTier shorten"
+Replace duration tier
+
+selectObject: manipName$
+Get resynthesis (overlap-add)
+
+Save as WAV file: outputDirectory$ + "\" + fileName$
+Remove
+
+selectObject: manipName$
+plusObject: "DurationTier shorten"
+Remove
+
+#Open the manipulated file in the Praat object window for checking
+Read from file: outputDirectory$ + "\" + fileName$
